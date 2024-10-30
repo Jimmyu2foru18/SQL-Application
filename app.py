@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, flash, redirect, url_for
+from flask import Flask, render_template, request, send_file, flash
 import sqlite3
 import csv
 import os
@@ -13,33 +13,44 @@ QUERY_HISTORY = []
 def index():
     query_result = None
     headers = None
+    error_message = None
+    sql_query = request.form.get('sql', '')
+
     if request.method == 'POST':
-        sql_query = request.form['sql']
+        action = request.form['action']
+        if action == 'Clear':
+            return render_template('index.html', query_result=None, headers=None, query_history=QUERY_HISTORY, sql_query='')
+
         if not sql_query.strip():
-            flash('SQL query cannot be empty.', 'error')
-            return redirect(url_for('index'))
-        
-        try:
-            conn = sqlite3.connect(DATABASE)
-            cursor = conn.execute(sql_query)
-            rows = cursor.fetchall()
-            headers = [description[0] for description in cursor.description]
-            conn.close()
+            error_message = 'SQL query cannot be empty.'
+        else:
+            try:
+                conn = sqlite3.connect(DATABASE)
+                cursor = conn.cursor()
+                # Split the SQL query into individual statements
+                statements = sql_query.split(';')
+                for statement in statements:
+                    if statement.strip():
+                        cursor.execute(statement)
+                rows = cursor.fetchall()
+                headers = [description[0] for description in cursor.description]
+                conn.commit()
+                conn.close()
 
-            # Save query to history
-            QUERY_HISTORY.append(sql_query)
+                # Save query to history
+                QUERY_HISTORY.append(sql_query)
 
-            # Write to CSV
-            with open(CSV_FILE, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerow(headers)
-                writer.writerows(rows)
+                # Write to CSV
+                with open(CSV_FILE, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(headers)
+                    writer.writerows(rows)
 
-            query_result = rows
-        except sqlite3.Error as e:
-            flash(f"An error occurred: {e}", 'error')
-            return redirect(url_for('index'))
-    return render_template('index.html', query_result=query_result, headers=headers, query_history=QUERY_HISTORY)
+                query_result = rows
+            except sqlite3.Error as e:
+                error_message = f"An error occurred: {e}"
+
+    return render_template('index.html', query_result=query_result, headers=headers, query_history=QUERY_HISTORY, error_message=error_message, sql_query=sql_query)
 
 if __name__ == '__main__':
     # Ensure the database exists
