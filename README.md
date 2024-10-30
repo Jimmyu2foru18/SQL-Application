@@ -68,10 +68,6 @@ The application also displays query results directly on the webpage and maintain
 - **Security**: This application executes raw SQL queries, which can be dangerous if exposed to untrusted users. Ensure that this application is used in a secure, controlled environment.
 - **Database Setup**: The application initializes with a sample SQLite database (`database.db`). You can customize this database with your own tables and data as needed.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgments
 
 - Built with [Flask](https://flask.palletsprojects.com/).
