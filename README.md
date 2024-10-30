@@ -23,7 +23,7 @@ The application also displays query results directly on the webpage and maintain
 
 1. **Clone the Repository**:
    ```bash
-   git clone <https://github.com/Jimmyu2foru18/SQL-Application>
+   git clone https://github.com/Jimmyu2foru18/SQL-Application
    cd ./SQL-Application
    ```
 
