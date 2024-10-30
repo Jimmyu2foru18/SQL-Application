@@ -23,8 +23,8 @@ The application also displays query results directly on the webpage and maintain
 
 1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
-   cd your_app
+   git clone <https://github.com/Jimmyu2foru18/SQL-Application>
+   cd ./SQL-Application
    ```
 
 2. **Create a Virtual Environment** (optional but recommended):
