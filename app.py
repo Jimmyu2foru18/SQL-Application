@@ -7,9 +7,12 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure key
 DATABASE = 'database.db'
 CSV_FILE = 'output.csv'
+QUERY_HISTORY = []
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    query_result = None
+    headers = None
     if request.method == 'POST':
         sql_query = request.form['sql']
         if not sql_query.strip():
@@ -23,17 +26,20 @@ def index():
             headers = [description[0] for description in cursor.description]
             conn.close()
 
+            # Save query to history
+            QUERY_HISTORY.append(sql_query)
+
             # Write to CSV
             with open(CSV_FILE, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 writer.writerow(headers)
                 writer.writerows(rows)
 
-            return send_file(CSV_FILE, as_attachment=True)
+            query_result = rows
         except sqlite3.Error as e:
             flash(f"An error occurred: {e}", 'error')
             return redirect(url_for('index'))
-    return render_template('index.html')
+    return render_template('index.html', query_result=query_result, headers=headers, query_history=QUERY_HISTORY)
 
 if __name__ == '__main__':
     # Ensure the database exists
