@@ -17,9 +17,17 @@
           {% endif %}
         {% endwith %}
         <form method="post">
-            <textarea name="sql" rows="10" cols="50" placeholder="Enter your SQL query here"></textarea><br><br>
-            <input type="submit" value="Execute and Export">
+            <textarea name="sql" rows="10" cols="50" placeholder="Enter your SQL query here">{{ request.form['sql'] if request.form.get('sql') else '' }}</textarea><br><br>
+            <input type="submit" name="action" value="Execute and Export">
+            <input type="submit" name="action" value="Clear">
         </form>
+
+        {% if error_message %}
+        <div class="error-box">
+            <h2>Error Details</h2>
+            <p>{{ error_message }}</p>
+        </div>
+        {% endif %}
 
         {% if query_result %}
         <h2>Query Results</h2>
